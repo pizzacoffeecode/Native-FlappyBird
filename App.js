@@ -2,7 +2,8 @@ import { StatusBar } from 'expo-status-bar';
 import { Text, View, TouchableOpacity, Image } from 'react-native';
 import styled from 'styled-components/native'
 import { useState, useEffect } from 'react';
-import { useFonts } from 'expo-font';
+import AppLoading from 'expo-app-loading';
+import * as Font from 'expo-font';
 
 const BIRD_START = 170;
 const BIRD_WIDTH = 34;
@@ -19,10 +20,7 @@ const flapMid = require("./assets/redbird-midflap.png");
 const flapUp = require("./assets/redbird-upflap.png");
 
 export default function App() {
-  let [ fontsLoaded ] = useFonts({
-    'flappy': require('./assets/fonts/FlappyBirdy.ttf'),
-  });
-
+  const [ fontsLoaded, setFontsLoaded ] = useState(false);
   const [ birdVertPosition, setbirdVertPosition ] = useState(BIRD_START);
   const [ gameHasStarted, setGameHasStarted ] = useState(false);
   const [ obstacleHeight, setObstacleHeight ] = useState(200);
@@ -36,6 +34,17 @@ export default function App() {
 
   const birdHorizPosition = 40;
   const bottomObstacleHeight = GAME_HEIGHT - OBSTACLE_GAP - obstacleHeight;
+
+
+  let customFonts = {
+    'flappy': require('./assets/fonts/FlappyBirdy.ttf'),
+  };
+  async function _loadFontsAsync() {
+    await Font.loadAsync(customFonts);
+    setFontsLoaded(true);
+  }
+
+  () => { _loadFontsAsync(); }
 
 
   //#region //* Gravity
@@ -119,11 +128,16 @@ export default function App() {
   }, [ birdVertPosition, obstacleHeight, bottomObstacleHeight, obstacleLeft ]);
   //#endregion 
 
+
+  if (fontsLoaded) {
+    return (<AppLoading />)
+  }
+
   return (
     <StyledView onPress={ handlePress } activeOpacity={ 1 }>
       {/* <StatusBar style="auto" /> */ }
       <GameBox width={ GAME_WIDTH } height={ GAME_HEIGHT } source={ require('./assets/background-day.png') } >
-        <StyledText style={ { fontFamily: 'flappy', fontSize: "60px" } }>SCORE</StyledText>
+        <StyledText style={ { fontFamily: 'flappy' } }>SCORE</StyledText>
         <StyledText style={ { paddingTop: "20px" } }>{ score }</StyledText>
         <Floor source={ require('./assets/base.png') } />
         <Obstacle
@@ -148,8 +162,11 @@ export default function App() {
       </GameBox>
 
     </StyledView >
+
   );
 }
+
+
 
 //#region //* Styles
 
@@ -198,8 +215,8 @@ const StyledText = styled.Text`
     position: absolute;
     z-index: 3;
     color: gold;
-    font-size: 50px;
-    align-self: start;
+    font-size: 60px;
+    align-self: flex-start;
     margin-top: 25px;
     width: 100%;
     text-align: center;
