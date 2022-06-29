@@ -2,7 +2,9 @@ import { StatusBar } from 'expo-status-bar';
 import { Text, View, TouchableOpacity, Image } from 'react-native';
 import styled from 'styled-components/native'
 import { useState, useEffect } from 'react';
+import { useFonts } from 'expo-font';
 
+const BIRD_START = 170;
 const BIRD_WIDTH = 34;
 const BIRD_HEIGHT = 24;
 const GAME_WIDTH = 360;
@@ -17,8 +19,11 @@ const flapMid = require("./assets/redbird-midflap.png");
 const flapUp = require("./assets/redbird-upflap.png");
 
 export default function App() {
+  let [ fontsLoaded ] = useFonts({
+    'flappy': require('./assets/fonts/FlappyBirdy.ttf'),
+  });
 
-  const [ birdVertPosition, setbirdVertPosition ] = useState(180);
+  const [ birdVertPosition, setbirdVertPosition ] = useState(BIRD_START);
   const [ gameHasStarted, setGameHasStarted ] = useState(false);
   const [ obstacleHeight, setObstacleHeight ] = useState(200);
   const [ obstacleLeft, setObstacleLeft ] = useState(GAME_WIDTH - OBSTACLE_WIDTH);
@@ -61,7 +66,7 @@ export default function App() {
     else {
       setObstacleLeft(GAME_WIDTH - OBSTACLE_WIDTH);
       setObstacleHeight(Math.floor((Math.random() * (GAME_HEIGHT - OBSTACLE_GAP))));
-
+      setbirdVertPosition(BIRD_START);
     }
     newScore = score;
     setScore(++newScore);
@@ -95,7 +100,7 @@ export default function App() {
         setFrame(0);
       }
 
-    }, 24)
+    }, 200)
     return () => {
       clearInterval(animTime)
     }
@@ -118,7 +123,8 @@ export default function App() {
     <StyledView onPress={ handlePress } activeOpacity={ 1 }>
       {/* <StatusBar style="auto" /> */ }
       <GameBox width={ GAME_WIDTH } height={ GAME_HEIGHT } source={ require('./assets/background-day.png') } >
-        <StyledText>SCORE : { score }</StyledText>
+        <StyledText style={ { fontFamily: 'flappy', fontSize: "60px" } }>SCORE</StyledText>
+        <StyledText style={ { paddingTop: "20px" } }>{ score }</StyledText>
         <Floor source={ require('./assets/base.png') } />
         <Obstacle
           top={ 0 }
@@ -136,6 +142,9 @@ export default function App() {
         />
 
         <Bird width={ BIRD_WIDTH } height={ BIRD_HEIGHT } top={ birdVertPosition } left={ birdHorizPosition } source={ currentFrame } />
+        {
+          !gameHasStarted ? <Start onPress={ handlePress }><StartText style={ { fontFamily: 'flappy' } }>START</StartText></Start> : ""
+        }
       </GameBox>
 
     </StyledView >
@@ -143,6 +152,24 @@ export default function App() {
 }
 
 //#region //* Styles
+
+const Start = styled.TouchableOpacity`
+    position: absolute; 
+    
+    height: 50px;
+    width: 150px;
+    top: calc(50% - 25px);
+    left: ${ props => props.left }px;
+    align-self: center;
+    justify-self: center;
+    justify-content: center;
+
+    border-style: solid;
+    border-color: grey;
+    border-width: 3px;
+    border-radius: 20px;
+`;
+
 const Bird = styled.Image`
     position: absolute; 
     /* background-color: red; */
@@ -171,18 +198,23 @@ const StyledText = styled.Text`
     position: absolute;
     z-index: 3;
     color: gold;
-    font-size: 25px;
-    align-self: center;
+    font-size: 50px;
+    align-self: start;
     margin-top: 25px;
-    width: 40%;
+    width: 100%;
     text-align: center;
-padding-bottom: 3px;
+    padding-bottom: 3px;
     padding-left: 3px;
     padding-right: 3px;
-    border-style: double;
-    border-color: gold;
-    border-width: 3px;
-    border-radius: 50;
+`;
+
+const StartText = styled.Text`
+    position: relative;
+    z-index: 3;
+    color: grey;
+    font-size: 60px;
+    text-align: center;
+    padding-top: 10px;
 `;
 
 const GameBox = styled.ImageBackground`
