@@ -2,9 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import styled from 'styled-components/native'
 import { useState, useEffect, useCallback } from 'react';
-// import * as Font from 'expo-font';
-// import * as SplashScreen from 'expo-splash-screen';
-// import useFonts from './hooks/useFonts';
 import { useFonts } from "expo-font";
 
 const BIRD_START = 170;
